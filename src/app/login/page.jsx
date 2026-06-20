@@ -52,6 +52,7 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
 const handleGoogleSignIn = async () => {
   const { data, error } = await authClient.signIn.social({
     provider: "google",
@@ -62,6 +63,7 @@ const handleGoogleSignIn = async () => {
     toast.error(error.message);
   }
 };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white p-6 rounded-xl shadow-lg">

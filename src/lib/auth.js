@@ -10,6 +10,7 @@ export const auth = betterAuth({
     emailAndPassword: { 
     enabled: true, 
   }, 
+
   user: {
    additionalFields:{
     role: {
@@ -20,6 +21,7 @@ export const auth = betterAuth({
       }
    }
   },
+
   session: {
    cookieCache: {
     enabled: true,
@@ -28,15 +30,18 @@ export const auth = betterAuth({
 
    }
   },
+
   plugins: [
      jwt()
   ],
+
   socialProviders: {
         google: { 
             clientId: process.env.GOOGLE_CLIENT_ID , 
             clientSecret: process.env.GOOGLE_CLIENT_SECRET, 
         },
     },
+    
   database: mongodbAdapter(db, {
     // Optional: if you don't provide a client, database transactions won't be enabled.
     client
