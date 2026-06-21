@@ -33,6 +33,7 @@ await authClient.signOut()
     { name: "Home", href: "/" },
     { name: "Browse Tasks", href: "/browse-tasks" },
     { name: "Browse Freelancers", href: "/browse-freelancers" },
+    { name: "Contact", href: "/contact" },
   ];
 
   const isActive = (href) => {
@@ -67,16 +68,16 @@ await authClient.signOut()
 
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="logo" height={40} width={40} />
+            <Image src="/navlogo.png" alt="logo" height={40} width={120} className="hidden sm:block md:block"/>
 
-            <p className="font-bold italic text-xl">
+            {/* <p className="font-bold italic text-xl">
               <span className="bg-gradient-to-r from-[#678d58] to-[#74d3ae] bg-clip-text text-transparent">
-                Align
+                Skill
               </span>
               <span className="bg-gradient-to-r from-[#a6c48a] to-[#74d3ae] bg-clip-text text-transparent">
-                Task
+                Swap
               </span>
-            </p>
+            </p> */}
           </Link>
         </div>
 
@@ -167,7 +168,6 @@ await authClient.signOut()
               </li>
             ))}
 
-           
           </ul>
         </div>
       )}
