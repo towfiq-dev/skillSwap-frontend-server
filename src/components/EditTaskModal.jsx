@@ -76,7 +76,7 @@ export default function EditTaskModal({ task, onUpdated }) {
     <Modal open={open} onOpenChange={setOpen}>
       {/* OPEN BUTTON */}
       <Button
-       className="bg-linear-to-r from-[#678d58] to-[#74d3ae]"
+        className="bg-linear-to-r from-[#678d58] to-[#74d3ae]"
         disabled={task.status !== "open"}
         onClick={() => setOpen(true)}
       >
@@ -91,10 +91,10 @@ export default function EditTaskModal({ task, onUpdated }) {
             <Modal.Header>
               <Modal.Heading >
                 <div className="flex gap-4">
-                   <Edit></Edit>
-                Edit Task
+                  <Edit></Edit>
+                  Edit Task
                 </div>
-               </Modal.Heading>
+              </Modal.Heading>
             </Modal.Header>
 
             <Modal.Body>

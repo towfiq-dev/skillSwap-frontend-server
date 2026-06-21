@@ -25,8 +25,8 @@ export default function RootLayout({ children }) {
         <main>
           {children}
         </main>
-        <Footer></Footer>
-          <ToastContainer />
+        <Footer/>
+        <ToastContainer />
       </body>
     </html>
   );

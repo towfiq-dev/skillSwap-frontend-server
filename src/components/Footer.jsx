@@ -13,7 +13,7 @@ import {
 const Footer = () => {
   return (
     <footer className="relative overflow-hidden border-t border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-      
+
       {/* Decorative Blur */}
       <div className="absolute top-0 left-0 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl" />
       <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-cyan-500/20 blur-3xl" />
@@ -38,7 +38,7 @@ const Footer = () => {
             </p>
 
             <div className="mt-5 flex flex-wrap gap-4">
-              <a 
+              <a
                 //href="/"
                 className="group rounded-full border border-white/10 bg-white/5 p-3 transition-all duration-300 hover:scale-110 hover:bg-white/10"
               >
@@ -68,7 +68,7 @@ const Footer = () => {
             </div>
           </div>
 
-        {/* RIGHT - NEWSLETTER */}
+          {/* RIGHT - NEWSLETTER */}
           {/* p-5 দিয়ে শুরু করে বড় স্ক্রিনের জন্য রেসপন্সিভ প্যাডিং দেওয়া হয়েছে */}
           <div className="rounded-3xl border border-white/10 bg-white/5 p-5 md:p-8 lg:p-6 backdrop-blur-xl">
             <h3 className="text-xl font-semibold sm:text-2xl">

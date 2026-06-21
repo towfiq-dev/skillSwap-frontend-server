@@ -1,7 +1,7 @@
 "use client";
 
 import {
- 
+
   Bell,
   Envelope,
   Gear,
@@ -32,10 +32,10 @@ export function DashboardSideBar() {
   const navItems = {
     client: [
       { icon: House, label: "Home", href: "/dashboard/client" },
-       { icon: Plus, label: "Post Tasks", href: "/dashboard/client/tasks/new" },
+      { icon: Plus, label: "Post Tasks", href: "/dashboard/client/tasks/new" },
       { icon: ListCheck, label: "My Tasks", href: "/dashboard/client/tasks" },
       { icon: File, label: "Manage Proposals", href: "/dashboard/client/proposals" },
-     
+
     ],
 
     freelancer: [
@@ -62,33 +62,33 @@ export function DashboardSideBar() {
       {/* MOBILE DRAWER */}
       <div className="lg:hidden mt-2">
         <Drawer open={open} onOpenChange={setOpen}>
-        <Button
-  onClick={() => setOpen(true)}
-  className="bg-linear-to-r from-[#678d58] to-[#74d3ae] text-white"
->
- <LayoutSideContent/>
-</Button>
+          <Button
+            onClick={() => setOpen(true)}
+            className="bg-linear-to-r from-[#678d58] to-[#74d3ae] text-white"
+          >
+            <LayoutSideContent />
+          </Button>
 
           <Drawer.Backdrop>
             <Drawer.Content placement="left">
               <Drawer.Dialog>
                 <Drawer.CloseTrigger />
 
-              <Drawer.Header className="border-b pb-4">
-  <div>
-    <h2 className="text-xl font-bold bg-gradient-to-r from-[#678d58] to-[#74d3ae] bg-clip-text text-transparent">
-      AlignTask
-    </h2>
+                <Drawer.Header className="border-b pb-4">
+                  <div>
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-[#678d58] to-[#74d3ae] bg-clip-text text-transparent">
+                      AlignTask
+                    </h2>
 
-    <p className="text-sm text-gray-500">
-      {role === "admin"
-        ? "Admin Panel"
-        : role === "freelancer"
-        ? "Freelancer Hub"
-        : "Client Dashboard"}
-    </p>
-  </div>
-</Drawer.Header>
+                    <p className="text-sm text-gray-500">
+                      {role === "admin"
+                        ? "Admin Panel"
+                        : role === "freelancer"
+                          ? "Freelancer Hub"
+                          : "Client Dashboard"}
+                    </p>
+                  </div>
+                </Drawer.Header>
 
                 <Drawer.Body>
                   <nav className="flex flex-col gap-2">
@@ -105,22 +105,22 @@ export function DashboardSideBar() {
                     ))}
                   </nav>
                   <div className="mt-6 border-t pt-4">
-  <div className="flex items-center gap-3">
-    <div className="h-10 w-10 rounded-full bg-linear-to-r from-[#678d58] to-[#74d3ae] flex items-center justify-center font-semibold">
-     <Avatar>
-           <Avatar.Image alt={user?.name} src={user?.image} />
-           <Avatar.Fallback>{user?.name[0]}</Avatar.Fallback>
-         </Avatar>
-    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-linear-to-r from-[#678d58] to-[#74d3ae] flex items-center justify-center font-semibold">
+                        <Avatar>
+                          <Avatar.Image alt={user?.name} src={user?.image} />
+                          <Avatar.Fallback>{user?.name[0]}</Avatar.Fallback>
+                        </Avatar>
+                      </div>
 
-    <div>
-      <p className="font-medium text-black text-sm">{user?.name}</p>
-      <p className="text-xs text-gray-500 capitalize">
-        {role}
-      </p>
-    </div>
-  </div>
-</div>
+                      <div>
+                        <p className="font-medium text-black text-sm">{user?.name}</p>
+                        <p className="text-xs text-gray-500 capitalize">
+                          {role}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </Drawer.Body>
               </Drawer.Dialog>
             </Drawer.Content>
@@ -130,15 +130,15 @@ export function DashboardSideBar() {
 
       {/* ================= DESKTOP SIDEBAR ================= */}
       <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen border-r bg-white px-4 py-6">
-        
+
         {/* Header */}
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-800">
             {role === "admin"
               ? "Admin Panel"
               : role === "freelancer"
-              ? "Freelancer Hub"
-              : "Client Space"}
+                ? "Freelancer Hub"
+                : "Client Space"}
           </h2>
 
           <p className="text-xs text-gray-500 mt-1">
@@ -162,20 +162,20 @@ export function DashboardSideBar() {
 
         {/* Footer */}
         <div className="mt-6 border-t pt-4">
-  <div className="flex items-center gap-3">
-   <Avatar>
-           <Avatar.Image alt={user?.name} src={user?.image} />
-           <Avatar.Fallback>{user?.name[0]}</Avatar.Fallback>
-         </Avatar>
+          <div className="flex items-center gap-3">
+            <Avatar>
+              <Avatar.Image alt={user?.name} src={user?.image} />
+              <Avatar.Fallback>{user?.name[0]}</Avatar.Fallback>
+            </Avatar>
 
-    <div>
-      <p className="font-medium text-sm">{user?.name}</p>
-      <p className="text-xs text-gray-500 capitalize">
-        {role}
-      </p>
-    </div>
-  </div>
-</div>
+            <div>
+              <p className="font-medium text-sm">{user?.name}</p>
+              <p className="text-xs text-gray-500 capitalize">
+                {role}
+              </p>
+            </div>
+          </div>
+        </div>
       </aside>
     </>
   );
