@@ -1,8 +1,8 @@
 import Banner from "@/components/homepage/Banner";
 import FeaturedTasks from "@/components/homepage/FeaturedTasks";
-import HowItWorks from "@/components/homepage/HowItWorks";
-import PopularCategories from "@/components/homepage/PopularCategories";
 import TopFreelancers from "@/components/homepage/TopFreelancers";
+import SmartWorkflow from "@/components/homepage/SmartWorkflow";
+import BrowseCategories from "@/components/homepage/BrowseCategories";
 
 export default function Home() {
   return (
@@ -10,8 +10,8 @@ export default function Home() {
       <Banner />
       <FeaturedTasks />
       <TopFreelancers />
-      <HowItWorks />
-      <PopularCategories />
+      <SmartWorkflow />
+      <BrowseCategories />
     </div>
   );
 }

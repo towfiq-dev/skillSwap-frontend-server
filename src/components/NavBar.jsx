@@ -68,7 +68,7 @@ await authClient.signOut()
 
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/navlogo.png" alt="logo" height={40} width={120} className="hidden sm:block md:block"/>
+            <Image src="/footerlogo.png" alt="logo" height={40} width={125} className="hidden sm:block md:block"/>
 
             {/* <p className="font-bold italic text-xl">
               <span className="bg-gradient-to-r from-[#678d58] to-[#74d3ae] bg-clip-text text-transparent">
