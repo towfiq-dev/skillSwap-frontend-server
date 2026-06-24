@@ -5,8 +5,22 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**',
-        
+        port: '',
+        pathname: '**',
+        search: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.vecteezy.com'
+      }
     ],
   },
 
