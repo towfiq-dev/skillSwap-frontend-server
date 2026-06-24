@@ -58,6 +58,7 @@ const NavBar = () => {
     { name: "Home", href: "/" },
     { name: "Browse Tasks", href: "/browse-tasks" },
     { name: "Browse Freelancers", href: "/browse-freelancers" },
+    { name: "Contact Us", href: "/contact" }
   ];
 
   const isActive = (href) => {
