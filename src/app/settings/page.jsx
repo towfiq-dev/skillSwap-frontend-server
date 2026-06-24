@@ -2,27 +2,12 @@
 
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { authClient } from "@/lib/auth-client";
 import {
   FaUser, FaLock, FaBell, FaShield, FaTrash,
   FaBriefcase, FaStar, FaChevronRight, FaCrown,
 } from "react-icons/fa6";
-
-// ─── mock: replace with real session/auth data ───
-const MOCK_USER = {
-  role: "freelancer", // change to "admin" | "client" | "freelancer"
-  name: "Towfiqul Islam",
-  email: "towfiq@skillswap.com",
-  avatar: "",
-  phone: "+880 171 234 5678",
-  location: "Dhaka, Bangladesh",
-  bio: "Full-stack developer with 4 years of experience building web apps.",
-  skills: "React, Next.js, Node.js, Tailwind",
-  hourlyRate: "25",
-  availability: "available",
-  website: "https://towfiq.dev",
-  company: "SkillSwap Ltd.",
-  companySize: "11-50",
-};
+import Image from "next/image";
 
 const TABS = {
   admin: [
@@ -94,7 +79,7 @@ const SaveButton = ({ onClick, loading }) => (
     <button
       onClick={onClick}
       disabled={loading}
-      className="flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-[#678d58] to-emerald-400 px-6 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition-all hover:-translate-y-0.5 hover:shadow-emerald-500/30 disabled:opacity-60 sm:h-11"
+      className="flex h-10 items-center cursor-pointer gap-2 rounded-xl bg-gradient-to-r from-[#678d58] to-emerald-400 px-6 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition-all hover:-translate-y-0.5 hover:shadow-emerald-500/30 disabled:opacity-60 sm:h-11"
     >
       {loading ? (
         <>
@@ -113,37 +98,58 @@ const SaveButton = ({ onClick, loading }) => (
 
 function ProfilePanel({ user }) {
   const [form, setForm] = useState({
-    name: user.name, email: user.email,
-    phone: user.phone, location: user.location, bio: user.bio,
-    website: user.website,
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    location: user?.location || "",
+    bio: user?.bio || "",
+    website: user?.website || "",
+    image: user?.image || "",
   });
   const [loading, setLoading] = useState(false);
   const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
-  const save = () => {
+  const save = async () => {
     setLoading(true);
-    setTimeout(() => { toast.success("Profile updated!"); setLoading(false); }, 800);
+    try {
+      await authClient.updateUser({
+        name: form.name,
+        image: form.image || undefined,
+      });
+      toast.success("Profile updated!");
+    } catch {
+      toast.error("Failed to update profile.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const initials = form.name?.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+  const initials = form.name?.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) || "?";
 
   return (
     <div className="flex flex-col gap-6">
       {/* Avatar row */}
       <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-100 bg-white p-5 sm:flex-row sm:p-6">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#678d58] to-emerald-400 text-xl font-bold text-white sm:h-20 sm:w-20 sm:text-2xl">
-          {initials}
-        </div>
+        {user?.image ? (
+          <Image
+            src={user.image}
+            alt={user.name}
+            width={200}
+            height={200}
+            className="h-16 w-16 shrink-0 rounded-2xl object-cover sm:h-20 sm:w-20"
+          />
+        ) : (
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#678d58] to-emerald-400 text-xl font-bold text-white sm:h-20 sm:w-20 sm:text-2xl">
+            {initials}
+          </div>
+        )}
         <div className="text-center sm:text-left">
           <p className="font-semibold text-slate-800">{form.name}</p>
           <p className="text-sm text-slate-400">{form.email}</p>
-          <span className={`mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${roleBadge[user.role].cls}`}>
-            {roleBadge[user.role].label}
+          <span className={`mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${roleBadge[user?.role]?.cls || roleBadge.client.cls}`}>
+            {roleBadge[user?.role]?.label || "User"}
           </span>
         </div>
-        <button className="ml-auto hidden rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 sm:block">
-          Change photo
-        </button>
       </div>
 
       <div className="rounded-2xl border border-slate-100 bg-white p-5 sm:p-6">
@@ -153,16 +159,19 @@ function ProfilePanel({ user }) {
             <TextInput value={form.name} onChange={set("name")} placeholder="Your name" />
           </Field>
           <Field label="Email address">
-            <TextInput value={form.email} onChange={set("email")} type="email" placeholder="you@email.com" />
+            <TextInput value={form.email} onChange={set("email")} type="email" placeholder="you@email.com" disabled />
           </Field>
-          <Field label="Phone">
-            <TextInput value={form.phone} onChange={set("phone")} placeholder="+880..." />
+          <Field label="Image URL" hint="Link to your profile photo">
+            <TextInput value={form.image} onChange={set("image")} placeholder="https://..." />
           </Field>
           <Field label="Location">
             <TextInput value={form.location} onChange={set("location")} placeholder="City, Country" />
           </Field>
           <Field label="Website" hint="Optional personal or portfolio link">
             <TextInput value={form.website} onChange={set("website")} placeholder="https://" />
+          </Field>
+          <Field label="Phone">
+            <TextInput value={form.phone} onChange={set("phone")} placeholder="+880..." />
           </Field>
         </div>
         <div className="mt-4">
@@ -190,11 +199,23 @@ function SecurityPanel() {
   const [loading, setLoading] = useState(false);
   const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
-  const save = () => {
+  const save = async () => {
     if (form.next !== form.confirm) { toast.error("Passwords don't match."); return; }
     if (form.next.length < 6) { toast.error("Password must be at least 6 characters."); return; }
     setLoading(true);
-    setTimeout(() => { toast.success("Password changed!"); setForm({ current: "", next: "", confirm: "" }); setLoading(false); }, 800);
+    try {
+      await authClient.changePassword({
+        currentPassword: form.current,
+        newPassword: form.next,
+        revokeOtherSessions: true,
+      });
+      toast.success("Password changed!");
+      setForm({ current: "", next: "", confirm: "" });
+    } catch {
+      toast.error("Failed to change password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -290,7 +311,9 @@ function NotificationsPanel() {
 
 function FreelancerPanel({ user }) {
   const [form, setForm] = useState({
-    skills: user.skills, hourlyRate: user.hourlyRate, availability: user.availability,
+    skills: user?.skills || "",
+    hourlyRate: user?.hourlyRate || "",
+    availability: user?.availability || "available",
   });
   const [loading, setLoading] = useState(false);
   const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
@@ -453,6 +476,15 @@ function PlatformPanel() {
 function DangerPanel() {
   const [confirm, setConfirm] = useState("");
 
+  const handleDelete = async () => {
+    try {
+      await authClient.deleteUser();
+      toast.error("Account deletion requested.");
+    } catch {
+      toast.error("Failed to delete account.");
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="rounded-2xl border border-red-100 bg-white p-5 sm:p-6">
@@ -477,7 +509,7 @@ function DangerPanel() {
         <div className="mt-4">
           <button
             disabled={confirm !== "DELETE"}
-            onClick={() => toast.error("Account deletion requested.")}
+            onClick={handleDelete}
             className="flex items-center gap-2 rounded-xl bg-red-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <FaTrash className="text-xs" />
@@ -491,8 +523,12 @@ function DangerPanel() {
 
 // ─── MAIN PAGE ───
 export default function SettingsPage() {
-  const user = MOCK_USER;
-  const tabs = TABS[user.role];
+  // ✅ Real session from better-auth
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
+  const role = user?.role || "client";
+
+  const tabs = TABS[role] || TABS.client;
   const [activeTab, setActiveTab] = useState("profile");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -500,16 +536,47 @@ export default function SettingsPage() {
 
   const renderPanel = () => {
     switch (activeTab) {
-      case "profile":      return <ProfilePanel user={user} />;
-      case "security":     return <SecurityPanel />;
-      case "notifications":return <NotificationsPanel />;
-      case "freelancer":   return <FreelancerPanel user={user} />;
-      case "billing":      return <BillingPanel />;
-      case "platform":     return <PlatformPanel />;
-      case "danger":       return <DangerPanel />;
-      default:             return null;
+      case "profile":       return <ProfilePanel user={user} />;
+      case "security":      return <SecurityPanel />;
+      case "notifications": return <NotificationsPanel />;
+      case "freelancer":    return <FreelancerPanel user={user} />;
+      case "billing":       return <BillingPanel />;
+      case "platform":      return <PlatformPanel />;
+      case "danger":        return <DangerPanel />;
+      default:              return null;
     }
   };
+
+  // ── Loading state ──
+  if (isPending) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f9f7]">
+        <div className="flex flex-col items-center gap-3">
+          <svg className="h-8 w-8 animate-spin text-emerald-500" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+          </svg>
+          <p className="text-sm text-slate-400">Loading your settings…</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Not logged in ──
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f9f7]">
+        <div className="text-center">
+          <p className="text-slate-600 font-medium">You are not signed in.</p>
+          <a href="/login" className="mt-3 inline-block rounded-xl bg-gradient-to-r from-[#678d58] to-emerald-400 px-5 py-2.5 text-sm font-semibold text-white">
+            Go to Login
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  const initials = user.name?.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) || "?";
 
   return (
     <div className="min-h-screen w-full bg-[#f7f9f7]">
@@ -521,8 +588,8 @@ export default function SettingsPage() {
             <h1 className="text-lg font-bold text-slate-800 sm:text-xl">Settings</h1>
             <p className="text-xs text-slate-400 sm:text-sm">Manage your account preferences</p>
           </div>
-          <span className={`rounded-full px-3 py-1 text-xs font-bold ${roleBadge[user.role].cls}`}>
-            {roleBadge[user.role].label}
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${roleBadge[role]?.cls || roleBadge.client.cls}`}>
+            {roleBadge[role]?.label || "User"}
           </span>
         </div>
       </div>
@@ -535,9 +602,13 @@ export default function SettingsPage() {
             <div className="sticky top-6 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
               {/* user mini card */}
               <div className="mb-3 flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#678d58] to-emerald-400 text-xs font-bold text-white">
-                  {user.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
-                </div>
+                {user.image ? (
+                  <img src={user.image} alt={user.name} className="h-9 w-9 shrink-0 rounded-xl object-cover" />
+                ) : (
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#678d58] to-emerald-400 text-xs font-bold text-white">
+                    {initials}
+                  </div>
+                )}
                 <div className="min-w-0">
                   <p className="truncate text-xs font-semibold text-slate-700">{user.name}</p>
                   <p className="truncate text-[10px] text-slate-400">{user.email}</p>
