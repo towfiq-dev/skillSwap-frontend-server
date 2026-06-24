@@ -19,9 +19,19 @@ export default function ClientDashboardHome() {
   useEffect(() => {
     if (!user?.email) return;
 
+      
+
     const loadStats = async () => {
+      const {data:tokenData} = await authClient.token()
+
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/client/stats/${user.email}`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/client/stats/${user.email}`,
+        {
+          headers: {
+            authorization: `Bearer ${tokenData?.token}`,
+          }
+        }
+        
       );
 
       const data = await res.json();
@@ -93,7 +103,7 @@ export default function ClientDashboardHome() {
       {/* Welcome Section */}
     
        <div className="py-5">
-         <h1 className="text-3xl font-bold">
+         <h1 className="text-3xl font-bold text-gray-800">
           Welcome Back, <span className="bg-gradient-to-r from-[#678d58] to-[#74d3ae] bg-clip-text text-transparent">{user.name}</span>👋
         </h1>
 
@@ -120,7 +130,7 @@ export default function ClientDashboardHome() {
                     {card.title}
                   </p>
 
-                  <h2 className="text-3xl font-bold mt-2">
+                  <h2 className="text-3xl font-bold mt-2 text-gray-800">
                     {card.value}
                   </h2>
                 </div>
@@ -137,7 +147,7 @@ export default function ClientDashboardHome() {
       {/* Summary */}
       <div className="grid md:grid-cols-2 gap-6 py-5">
         <div className="rounded-3xl border bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold mb-3">
+          <h2 className="text-xl font-semibold mb-3 text-gray-800">
             Project Summary
           </h2>
 
@@ -155,7 +165,7 @@ export default function ClientDashboardHome() {
         </div>
 
         <div className="rounded-3xl border bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold mb-3">
+          <h2 className="text-xl font-semibold mb-3 text-gray-800">
             Spending Summary
           </h2>
 

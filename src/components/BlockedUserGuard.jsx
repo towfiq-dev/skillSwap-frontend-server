@@ -22,7 +22,7 @@ export default function BlockedUserGuard() {
       if (data.blocked) {
         await authClient.signOut();
 
-      
+       
         router.replace("/login");
       }
     };

@@ -35,7 +35,21 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
+      
+       const statusRes = await fetch(
+  `${process.env.NEXT_PUBLIC_BASE_URL}/users/status/${user.email}`
+);
 
+const status = await statusRes.json();
+
+if (status.blocked) {
+  await authClient.signOut();
+
+  toast.error("Your account has been blocked");
+
+  setLoading(false);
+  return;
+}
       // 🔥 Role-based redirect (you can adjust later)
       const role = data?.user?.role;
 
@@ -52,7 +66,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
 const handleGoogleSignIn = async () => {
   const { data, error } = await authClient.signIn.social({
     provider: "google",
@@ -63,7 +76,6 @@ const handleGoogleSignIn = async () => {
     toast.error(error.message);
   }
 };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white p-6 rounded-xl shadow-lg">

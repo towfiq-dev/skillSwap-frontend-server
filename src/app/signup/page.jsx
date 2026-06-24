@@ -33,7 +33,6 @@ export default function SignupPage() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
 const router = useRouter();
   const handleSubmit = async(e) => {
     e.preventDefault();
@@ -52,7 +51,6 @@ const router = useRouter();
         "Password must be 6+ chars, include uppercase & lowercase"
       );
     }
-
      const { data, error } = await authClient.signUp.email({
     name: user.name, // required
     email: user.email, // required
@@ -67,10 +65,12 @@ if(data){
    router.push("/")
   
 }
-
 if(error){
     toast.error(error.message)
 }
+
+   
+   
   };
 const handleGoogleSignIn = async () => {
   const { data, error } = await authClient.signIn.social({
@@ -82,8 +82,6 @@ const handleGoogleSignIn = async () => {
     toast.error(error.message);
   }
 };
-
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-5">
       <div className="w-full max-w-md bg-white p-6 rounded-xl shadow-lg py-5">

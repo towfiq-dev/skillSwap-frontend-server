@@ -92,14 +92,17 @@ const validateForm = () => {
 
     // DEBUG (VERY IMPORTANT)
     console.log("FINAL PAYLOAD:", payload);
+    console.log(session);
+const { data: tokenData } = await authClient.token();
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/tasks`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/tasks`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${tokenData?.token}`,
+  },
+  body: JSON.stringify(payload),
+});
 
     const data = await res.json();
 
@@ -127,7 +130,7 @@ setErrors({});
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6 text-[#678d58]">
+      <h1 className="text-3xl font-bold mb-6 bg-linear-to-r from-[#678d58] to-[#74d3ae] bg-clip-text text-transparent">
         Post a New Task
       </h1>
 

@@ -38,6 +38,33 @@ export default function MyTasksPage() {
     if (status === "completed") return "bg-green-100 text-green-700";
     return "bg-gray-100";
   };
+  const getCategoryEmoji = (category) => {
+  switch (category) {
+    case "Design":
+      return "🎨";
+
+    case "Development":
+      return "💻";
+
+    case "Writing":
+      return "✍️";
+
+    case "Marketing":
+      return "📢";
+
+    case "Video Editing":
+      return "🎥";
+
+    case "Data Entry":
+      return "📊";
+
+    case "Other":
+      return "🧩";
+
+    default:
+      return "📁";
+  }
+};
 
   const chip =
     "px-3 py-1 rounded-full text-xs font-medium border bg-gray-50 text-gray-700";
@@ -110,14 +137,12 @@ export default function MyTasksPage() {
         </div>
       ) : (
         /* TASK GRID */
-        <div className="grid md:grid-cols-3 gap-6 items-stretch auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {tasks.map((task) => (
            <div
   key={task._id}
   className="
-    bg-white border rounded-2xl p-5 shadow-sm
-    hover:shadow-xl hover:-translate-y-1 transition duration-200
-    flex flex-col h-full"
+    bg-white border rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-200 flex flex-col justify-between h-full"
 >
               {/* TITLE + STATUS */}
               <div className="flex justify-between items-start">
@@ -140,10 +165,10 @@ export default function MyTasksPage() {
               </p>
 
               {/* CHIPS */}
-              <div className="flex flex-wrap gap-2 mt-4">
+              <div className="flex flex-wrap gap-2 mt-4 mb-4">
                 <span className={chip}>
-                  📂 {task.category}
-                </span>
+  {getCategoryEmoji(task.category)} {task.category}
+</span>
 
                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border">
                   💰 ${task.budget}
@@ -155,8 +180,8 @@ export default function MyTasksPage() {
               </div>
 
               {/* ACTIONS */}
-             <div className="mt-3 border-t border-gray-100">
-  <div className="flex gap-2 mt-4">
+             <div className="mt-auto pt-4 border-t border-gray-100">
+  <div className="flex gap-2">
                 {task.status === "open" && (
                   <EditTaskModal
                     task={task}

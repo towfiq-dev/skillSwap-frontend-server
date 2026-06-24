@@ -3,34 +3,37 @@
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "react-toastify";
+import { Button } from "@heroui/react";
 
 export default function ProfilePage() {
   const { data: session } = authClient.useSession();
   const user = session?.user;
 
   const [form, setForm] = useState({
-  name: "",
-  photo: "",
-  skills: [],
-  bio: "",
-  hourlyRate: "",
-});
-const [skillInput, setSkillInput] = useState("");
-
-const addSkill = () => {
-  if (!skillInput.trim()) return;
-
-  setForm({
-    ...form,
-    skills: [...form.skills, skillInput.trim()],
+    name: "",
+    photo: "",
+    skills: [],
+    bio: "",
+    hourlyRate: "",
   });
 
-  setSkillInput("");
-};
-const removeSkill = (index) => {
-  const updated = form.skills.filter((_, i) => i !== index);
-  setForm({ ...form, skills: updated });
-};
+  const [skillInput, setSkillInput] = useState("");
+
+  const addSkill = () => {
+    if (!skillInput.trim()) return;
+
+    setForm({
+      ...form,
+      skills: [...form.skills, skillInput.trim()],
+    });
+
+    setSkillInput("");
+  };
+
+  const removeSkill = (index) => {
+    const updated = form.skills.filter((_, i) => i !== index);
+    setForm({ ...form, skills: updated });
+  };
 
   const loadProfile = async () => {
     const res = await fetch(
@@ -38,24 +41,25 @@ const removeSkill = (index) => {
     );
 
     const data = await res.json();
-   if (data) {
-  setForm({
-  name: data.name || "",
-  photo: data.image || "",
-  skills: Array.isArray(data.skills)
-    ? data.skills
-    : data.skills
-    ? data.skills.split(",").map((s) => s.trim()).filter(Boolean)
-    : [],
-  bio: data.bio || "",
-  hourlyRate: data.hourlyRate || "",
-});
-}
+
+    if (data) {
+      setForm({
+        name: data.name || "",
+        photo: data.image || "",
+        skills: Array.isArray(data.skills)
+          ? data.skills
+          : data.skills
+          ? data.skills.split(",").map((s) => s.trim()).filter(Boolean)
+          : [],
+        bio: data.bio || "",
+        hourlyRate: data.hourlyRate || "",
+      });
+    }
   };
 
   useEffect(() => {
     if (user?.email) loadProfile();
-  }, [user]);
+  }, [user?.email]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -77,82 +81,101 @@ const removeSkill = (index) => {
       if (!res.ok) throw new Error(data.error);
 
       toast.success("Profile updated!");
-     window.location.reload();
+      window.dispatchEvent(new Event("profile-updated"));
     } catch (err) {
       toast.error(err.message);
     }
-    
-
   };
 
   return (
-    <div className="p-6 max-w-xl">
-      <h1 className="text-2xl font-bold mb-4">Edit Profile</h1>
+    <div className="min-h-screen bg-gray-50 flex justify-center p-6">
+      <div className="w-full max-w-2xl bg-white shadow-lg rounded-2xl p-8">
 
-      <input
-        name="name"
-        placeholder="Name"
-        value={form?.name}
-        onChange={handleChange}
-        className="border p-2 w-full mb-2"
-      />
+        {/* Title */}
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+          Edit Profile
+        </h1>
 
-      <input
-        name="photo"
-        placeholder="Photo URL"
-        value={form?.photo}
-        onChange={handleChange}
-        className="border p-2 w-full mb-2"
-      />
+        {/* Name */}
+        <input
+          name="name"
+          placeholder="Full Name"
+          value={form.name}
+          onChange={handleChange}
+          className="w-full mb-3 p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+        />
 
-    <div className="mb-2">
-  <div className="flex gap-2">
-    <input
-      value={skillInput}
-      onChange={(e) => setSkillInput(e.target.value)}
-      placeholder="Add skill"
-      className="border p-2 flex-1"
-    />
-    <button onClick={addSkill} className="bg-green-500 px-3 text-white">
-      Add
-    </button>
-  </div>
+        {/* Photo */}
+        <input
+          name="photo"
+          placeholder="Profile Photo URL"
+          value={form.photo}
+          onChange={handleChange}
+          className="w-full mb-3 p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+        />
 
-  <div className="flex gap-2 flex-wrap mt-2">
-    {form.skills.map((skill, i) => (
-      <span
-        key={i}
-        className="bg-gray-200 px-2 py-1 rounded cursor-pointer"
-        onClick={() => removeSkill(i)}
-      >
-        {skill} ✕
-      </span>
-    ))}
-  </div>
-</div>
+        {/* Skills */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-600 mb-2">
+            Skills
+          </label>
 
-      <textarea
-        name="bio"
-        placeholder="Bio"
-        value={form?.bio}
-        onChange={handleChange}
-        className="border p-2 w-full mb-2"
-      />
+          <div className="flex gap-2">
+            <input
+              value={skillInput}
+              onChange={(e) => setSkillInput(e.target.value)}
+              placeholder="Add skill (e.g. React)"
+              className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-400 outline-none"
+            />
 
-      <input
-        name="hourlyRate"
-        placeholder="Hourly Rate"
-        value={form?.hourlyRate}
-        onChange={handleChange}
-        className="border p-2 w-full mb-2"
-      />
+            <button
+              onClick={addSkill}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 rounded-lg transition"
+            >
+              Add
+            </button>
+          </div>
 
-      <button
-        onClick={saveProfile}
-        className="bg-blue-600 text-white px-4 py-2 rounded"
-      >
-        Save Profile
-      </button>
+          {/* Skill Tags */}
+          <div className="flex flex-wrap gap-2 mt-3">
+            {form.skills.map((skill, i) => (
+              <span
+                key={i}
+                onClick={() => removeSkill(i)}
+                className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-red-100 hover:text-red-600 transition"
+              >
+                {skill} ✕
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Bio */}
+        <textarea
+          name="bio"
+          placeholder="Write something about yourself..."
+          value={form.bio}
+          onChange={handleChange}
+          className="w-full mb-3 p-3 border rounded-lg h-28 focus:ring-2 focus:ring-blue-400 outline-none"
+        />
+
+        {/* Hourly Rate */}
+        <input
+          name="hourlyRate"
+          placeholder="Hourly Rate ($)"
+          value={form.hourlyRate}
+          onChange={handleChange}
+          className="w-full mb-6 p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
+        />
+
+        {/* Save Button */}
+        <Button
+          onClick={saveProfile}
+          className="w-full bg-gradient-to-r from-[#678d58] to-[#74d3ae] text-white py-2 rounded-full hover:opacity-90 font-semibold transition"
+        >
+          Save Profile
+        </Button>
+      </div>
     </div>
   );
 }

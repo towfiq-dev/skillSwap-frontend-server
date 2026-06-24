@@ -1,59 +1,101 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { authClient } from "@/lib/auth-client";
 import { Input, TextArea } from "@heroui/react";
 
 export default function ApplyProposal({ task }) {
-  const { data: session } = authClient.useSession();
+  // 🔥 FIX 1: prevent hydration mismatch
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 🔥 FIX 2: correct loading state name (most auth libs use isLoading)
+  const { data: session, isLoading } = authClient.useSession();
   const user = session?.user;
 
   const [form, setForm] = useState({
     budget: "",
-    deliveryDate: "",
+    estimatedDays: "",
     message: "",
   });
 
-  const submitProposal = async () => {
+  const submitProposal = async (e) => {
+    e.preventDefault();
+
+    if (!form.budget || !form.estimatedDays || !form.message) {
+      return toast.error("Please fill all fields");
+    }
+
     try {
       if (!user) return toast.error("Please login first");
 
       if (user.role !== "freelancer") {
         return toast.error("Only freelancers can apply");
       }
-
+     const {data:tokenData} = await authClient.token()
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/proposals`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+          headers: { "Content-Type": "application/json",
+          authorization: `Bearer ${tokenData?.token}`
+ 
+
           },
           body: JSON.stringify({
-            taskId: task._id,
-
-            // ✅ auto filled (NOT user input)
+            taskId: task?._id,
+            taskTitle: task?.title,
             freelancerId: user.id,
             freelancerEmail: user.email,
             freelancerName: user.name,
-
             budget: form.budget,
-            deliveryDate: form.deliveryDate,
+            estimatedDays: form.estimatedDays,
             message: form.message,
           }),
         }
       );
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error);
 
       toast.success("Proposal submitted!");
+
+      setForm({
+        budget: "",
+        estimatedDays: "",
+        message: "",
+      });
     } catch (err) {
       toast.error(err.message);
     }
   };
+
+  // 🔥 FIX 3: prevent SSR/client mismatch
+  if (!mounted) return null;
+
+  // 🔥 FIX 4: safe loading UI (no DOM mismatch)
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+
+          <div className="relative">
+            <div className="h-14 w-14 rounded-full border-4 border-gray-200"></div>
+            <div className="h-14 w-14 rounded-full border-4 border-t-[#678d58] border-r-transparent border-b-transparent border-l-transparent animate-spin absolute top-0 left-0"></div>
+          </div>
+
+          <p className="text-gray-600 font-medium">
+            Loading...
+          </p>
+
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -61,9 +103,9 @@ export default function ApplyProposal({ task }) {
         <p className="mb-2">You need to login first</p>
         <button
           onClick={() => (window.location.href = "/login")}
-          className="bg-linear-to-r from-[#678d58] to-[#74d3ae] text-white hover:opacity-90 px-4 py-2 rounded"
+          className="bg-gradient-to-r from-[#678d58] to-[#74d3ae] text-white hover:opacity-90 px-4 py-2 rounded-full"
         >
-          Sign in
+          Login
         </button>
       </div>
     );
@@ -78,47 +120,79 @@ export default function ApplyProposal({ task }) {
   }
 
   return (
-    <div className="space-y-3 grid">
+    <form onSubmit={submitProposal} className="space-y-5">
 
-      {/* 🔥 FREELANCER INFO (READ ONLY UI) */}
-      <div className="text-sm p-3 border rounded bg-gray-50">
-        <p><b>Name:</b> {user.name}</p>
-        <p><b>Email:</b> {user.email}</p>
+      {/* Freelancer Info */}
+      <div className="rounded-2xl border border-[#74d3ae]/20 bg-gradient-to-r from-[#678d58]/5 to-[#74d3ae]/10 p-5">
+
+        <h3 className="font-semibold text-lg mb-4 text-gray-800">
+          Freelancer Information
+        </h3>
+
+        <div className="space-y-3">
+
+          <div className="flex justify-between items-center bg-white rounded-xl px-4 py-3 border">
+            <span className="text-gray-500">Task ID</span>
+            <span className="font-mono text-sm font-medium">
+              {task?._id}
+            </span>
+          </div>
+
+          <div className="flex justify-between items-center bg-white rounded-xl px-4 py-3 border">
+            <span className="text-gray-500">Email</span>
+            <span className="font-medium text-sm">
+              {user?.email}
+            </span>
+          </div>
+
+        </div>
       </div>
 
+      {/* Budget */}
       <Input
         type="number"
+        className="w-full"
         min="1"
+        required
         value={form.budget}
-        placeholder="Your Budget"
+        placeholder="Proposed Budget"
         onChange={(e) =>
           setForm({ ...form, budget: e.target.value })
         }
       />
 
+      {/* Days */}
       <Input
-        type="date"
-        value={form.deliveryDate}
+      className="w-full"
+        type="number"
+        min="1"
+        required
+        value={form.estimatedDays}
+        placeholder="Estimated Days"
         onChange={(e) =>
-          setForm({ ...form, deliveryDate: e.target.value })
+          setForm({ ...form, estimatedDays: e.target.value })
         }
       />
 
+      {/* Message */}
       <TextArea
-        placeholder="Cover message"
+        required
+        className="w-full"
+        rows={3}
         value={form.message}
+        placeholder="Cover note..."
         onChange={(e) =>
           setForm({ ...form, message: e.target.value })
         }
       />
 
       <button
-        onClick={submitProposal}
-        className="w-full bg-linear-to-r from-[#678d58] to-[#74d3ae] text-white py-2 rounded hover:opacity-90"
+        type="submit"
+        className="w-full bg-gradient-to-r from-[#678d58] to-[#74d3ae] text-white font-semibold py-3 rounded-full"
       >
-        Submit Proposal
+        🚀 Submit Proposal
       </button>
 
-    </div>
+    </form>
   );
 }

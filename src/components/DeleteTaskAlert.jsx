@@ -1,5 +1,6 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
 import { AlertDialog, Button } from "@heroui/react";
 import { toast } from "react-toastify";
 
@@ -9,6 +10,8 @@ export default function DeleteTaskAlert({
   onDeleted,
 }) {
   const handleDelete = async () => {
+     const {data:tokenData} = await authClient.token()
+
     try {
       if (!taskId) {
         throw new Error("Invalid task id");
@@ -18,6 +21,12 @@ export default function DeleteTaskAlert({
         `${process.env.NEXT_PUBLIC_BASE_URL}/tasks/${taskId}`,
         {
           method: "DELETE",
+          headers: {
+             "Content-Type": "application/json",
+                authorization: `Bearer ${tokenData?.token}`
+
+          },
+
         }
       );
 

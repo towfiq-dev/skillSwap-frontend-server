@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { toast } from "react-toastify";
 import { Edit } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 export default function EditTaskModal({ task, onUpdated }) {
   const [open, setOpen] = useState(false);
@@ -46,6 +47,8 @@ export default function EditTaskModal({ task, onUpdated }) {
   };
 
   const handleUpdate = async () => {
+     const {data:tokenData} = await authClient.token()
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/tasks/${task._id}`,
@@ -53,6 +56,8 @@ export default function EditTaskModal({ task, onUpdated }) {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`
+
           },
           body: JSON.stringify(form),
         }
@@ -76,7 +81,7 @@ export default function EditTaskModal({ task, onUpdated }) {
     <Modal open={open} onOpenChange={setOpen}>
       {/* OPEN BUTTON */}
       <Button
-        className="bg-linear-to-r from-[#678d58] to-[#74d3ae]"
+       className="bg-linear-to-r from-[#678d58] to-[#74d3ae]"
         disabled={task.status !== "open"}
         onClick={() => setOpen(true)}
       >
@@ -91,10 +96,10 @@ export default function EditTaskModal({ task, onUpdated }) {
             <Modal.Header>
               <Modal.Heading >
                 <div className="flex gap-4">
-                  <Edit></Edit>
-                  Edit Task
+                   <Edit></Edit>
+               <span className="bg-gradient-to-r from-[#678d58] to-[#74d3ae] bg-clip-text text-transparent text-xl">Edit Task</span>
                 </div>
-              </Modal.Heading>
+               </Modal.Heading>
             </Modal.Header>
 
             <Modal.Body>
@@ -171,11 +176,11 @@ export default function EditTaskModal({ task, onUpdated }) {
             </Modal.Body>
 
             <Modal.Footer>
-              <Button variant="secondary" onPress={() => setOpen(false)}>
+              <Button slot="close" variant="secondary" className="text-[#dd9787]" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
 
-              <Button color="primary" onPress={handleUpdate}>
+              <Button slot="close" className="bg-linear-to-r from-[#678d58] to-[#74d3ae]" onClick={handleUpdate}>
                 Save Changes
               </Button>
             </Modal.Footer>
