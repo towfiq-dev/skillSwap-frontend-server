@@ -88,27 +88,128 @@ export default function SuccessPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="border rounded-xl p-8 text-center bg-white shadow-md max-w-md w-full">
+  <div className="min-h-screen bg-[#111111] flex items-center justify-center p-4">
+    <div className="w-full max-w-lg">
 
-        <h1 className="text-3xl font-bold text-green-600">
-          Payment Successful 🎉
-        </h1>
+      <div className="bg-gradient-to-br from-[#1d1d1d] to-[#242424] border border-[#343434] rounded-3xl p-8 shadow-2xl">
 
-        <div className="mt-4 text-gray-700 space-y-2">
-          <p><b>Task:</b> {data?.taskTitle}</p>
-          <p><b>Freelancer:</b> {data?.freelancerName}</p>
-          <p><b>Amount Paid:</b> ${data?.amount}</p>
+        {/* Success Icon */}
+        <div className="flex justify-center">
+          <div className="relative">
+            <div className="w-28 h-28 rounded-full bg-[#7f9377]/20 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-[#aeb8a7] flex items-center justify-center">
+                <svg
+                  className="w-10 h-10 text-[#1d3b16]"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
 
+        {/* Badge */}
+        <div className="flex justify-center mt-4">
+          <span className="px-4 py-1 rounded-full bg-[#aeb8a7] text-[#24361e] text-sm font-medium">
+            ✓ Payment verified
+          </span>
+        </div>
+
+        {/* Title */}
+        <div className="text-center mt-5">
+          <h1 className="text-4xl font-bold text-white">
+            Payment Successful
+          </h1>
+
+          <p className="text-gray-400 mt-3">
+            Your project has been funded and assigned to the freelancer.
+          </p>
+        </div>
+
+        {/* Details */}
+        <div className="mt-8 bg-[#181818] border border-[#2b2b2b] rounded-2xl p-5">
+
+          <div className="flex justify-between py-3 border-b border-[#2d2d2d]">
+            <span className="text-gray-400">Task</span>
+            <span className="text-white font-medium">
+              {data?.taskTitle}
+            </span>
+          </div>
+
+          <div className="flex justify-between py-3 border-b border-[#2d2d2d]">
+            <span className="text-gray-400">Freelancer</span>
+            <span className="text-white font-medium">
+              {data?.freelancerName}
+            </span>
+          </div>
+
+          <div className="flex justify-between py-3">
+            <span className="text-gray-400">Status</span>
+
+            <span className="px-3 py-1 rounded-full bg-[#aeb8a7] text-[#24361e] text-sm">
+              In Progress
+            </span>
+          </div>
+
+        </div>
+
+        {/* Amount Card */}
+        <div className="mt-6 bg-[#b8c1b2] rounded-2xl p-5 flex justify-between items-center">
+
+          <div>
+            <p className="text-[#3f4d39] text-sm">
+              Total charged
+            </p>
+
+            <h2 className="text-4xl font-bold text-[#24361e]">
+              ${data?.amount}
+            </h2>
+          </div>
+
+          <div className="text-right">
+            <p className="text-[#3f4d39] text-sm">
+              Transaction
+            </p>
+
+            <p className="font-semibold text-[#24361e]">
+              #{session_id?.slice(-8)}
+            </p>
+          </div>
+
+        </div>
+
+        {/* Divider */}
+        <div className="my-6 h-[2px] bg-[#678d58] rounded-full" />
+
+        {/* Message */}
+        <p className="text-center text-gray-400 mb-6">
+          Project funded and ready to start
+        </p>
+
+        {/* Button */}
         <button
           onClick={() => router.push("/dashboard/client")}
-          className="mt-6 w-full bg-linear-to-r from-[#678d58] to-[#74d3ae] text-white py-2 rounded-full hover:opacity-90"
+          className="group w-full cursor-pointer border border-[#4b4b4b] rounded-2xl py-4 text-white flex items-center justify-center gap-2 hover:bg-[#678d58] hover:border-[#678d58] transition-all duration-300"
         >
           Go to Dashboard
+
+          <MdArrowUpward className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
         </button>
+
+        <p className="text-center text-gray-500 text-sm mt-5">
+          A confirmation has been sent to your email.
+        </p>
 
       </div>
     </div>
-  );
+  </div>
+);
 }

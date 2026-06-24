@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function ClientProposalsPage() {
   const { data: session } = authClient.useSession();
@@ -27,153 +28,187 @@ export default function ClientProposalsPage() {
       });
   }, [user]);
 
+  const getCategoryEmoji = (category) => {
+    const map = {
+      Design: "🎨", Development: "💻", Writing: "✍️",
+      Marketing: "📢", "Video Editing": "🎥", "Data Entry": "📊", Other: "🧩",
+    };
+    return map[category] || "📁";
+  };
+
+  const statusConfig = {
+    open:              { label: "Open",             cls: "bg-emerald-50 text-emerald-700 border-emerald-200",  dot: "bg-emerald-500" },
+    "in progress":     { label: "In Progress",      cls: "bg-amber-50 text-amber-700 border-amber-200",        dot: "bg-amber-500" },
+    awaiting_payment:  { label: "Awaiting Payment", cls: "bg-sky-50 text-sky-700 border-sky-200",              dot: "bg-sky-500" },
+    completed:         { label: "Completed",        cls: "bg-slate-100 text-slate-600 border-slate-200",       dot: "bg-slate-400" },
+  };
+
+  const getStatus = (status) =>
+    statusConfig[status] || { label: status, cls: "bg-slate-50 text-slate-500 border-slate-200", dot: "bg-slate-400" };
+
   if (!user) {
     return (
-      <div className="p-6">
-        <p>Login required</p>
+      <div className="flex min-h-[60vh] items-center justify-center p-6">
+        <p className="text-sm text-slate-400">Login required</p>
       </div>
     );
   }
-  const getCategoryEmoji = (category) => {
-  const categories = {
-    Design: "🎨",
-    Development: "💻",
-    Writing: "✍️",
-    Marketing: "📢",
-    "Video Editing": "🎥",
-    "Data Entry": "📊",
-    Other: "🧩",
-  };
 
-  return categories[category] || "📁";
-};
-
-const getStatusChip = (status) => {
-  switch (status) {
-    case "open":
-      return "bg-green-50 text-green-700 border-green-200";
-    case "in progress":
-      return "bg-yellow-50 text-yellow-700 border-yellow-200";
-    case "awaiting_payment":
-      return "bg-blue-50 text-blue-700 border-blue-200";
-    case "completed":
-      return "bg-gray-100 text-gray-700 border-gray-300";
-    default:
-      return "bg-gray-50 text-gray-600";
-  }
-};
-
+  // ── LOADING ──
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          {/* Animated ring loader */}
-          <div className="relative">
-            <div className="h-14 w-14 rounded-full border-4 border-gray-200"></div>
-            <div className="h-14 w-14 rounded-full border-4 border-t-[#678d58] border-r-transparent border-b-transparent border-l-transparent animate-spin absolute top-0 left-0"></div>
-          </div>
-
-          {/* Text */}
-          <p className="text-gray-600 font-medium tracking-wide">
-            Loading your tasks...
-          </p>
-
-          {/* subtle dots animation */}
-          <div className="flex gap-1 mt-1">
-            <span className="h-2 w-2 bg-[#678d58] rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-            <span className="h-2 w-2 bg-[#678d58] rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-            <span className="h-2 w-2 bg-[#678d58] rounded-full animate-bounce"></span>
-          </div>
+      <div className="min-h-screen w-full bg-[#f7f9f7] p-4 sm:p-6 lg:p-8">
+        <div className="mb-8">
+          <div className="mb-2 h-7 w-48 animate-pulse rounded-xl bg-slate-200" />
+          <div className="h-4 w-64 animate-pulse rounded-lg bg-slate-100" />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+              <div className="h-1 w-full bg-slate-100" />
+              <div className="p-5">
+                <div className="mb-3 h-5 w-3/4 animate-pulse rounded-lg bg-slate-100" />
+                <div className="mb-4 flex gap-2">
+                  <div className="h-5 w-20 animate-pulse rounded-full bg-slate-100" />
+                  <div className="h-5 w-24 animate-pulse rounded-full bg-slate-100" />
+                </div>
+                <div className="h-4 w-28 animate-pulse rounded-full bg-slate-100" />
+                <div className="mt-5 h-9 w-full animate-pulse rounded-xl bg-slate-100" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">
-          Manage Proposals
-        </h1>
-        <p className="text-gray-500 mt-1">
-          Review proposals submitted to your tasks
-        </p>
+    <div className="min-h-screen w-full bg-[#f7f9f7]">
+
+      {/* ── HEADER ── */}
+      <div className="border-b border-slate-100 bg-white px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 sm:text-xs">
+                Client Dashboard
+              </p>
+              <h1 className="mt-0.5 text-xl font-bold text-slate-800 sm:text-2xl lg:text-3xl">
+                Manage Proposals
+              </h1>
+              <p className="mt-0.5 text-xs text-slate-400 sm:text-sm">
+                Review proposals submitted to your tasks
+              </p>
+            </div>
+            {tasks.length > 0 && (
+              <div className="mt-3 flex items-center gap-2 sm:mt-0">
+                <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm">
+                  {tasks.length} task{tasks.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Empty State */}
-      {tasks.length === 0 ? (
-        <div className="bg-white border rounded-2xl p-12 text-center shadow-sm">
-          <div className="text-5xl mb-4">📭</div>
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
 
-          <h2 className="text-xl font-semibold text-gray-800">
-            No proposals yet
-          </h2>
-
-          <p className="text-gray-500 mb-6">
-            Once freelancers start applying to your tasks, they will appear here.
-          </p>
-
-          <Link
-            href="/dashboard/client/tasks"
-            className="inline-block my-6 px-6 py-2 rounded-lg text-white font-medium bg-gradient-to-r from-[#678d58] to-[#74d3ae] hover:opacity-90 transition"
+        {/* ── EMPTY STATE ── */}
+        {tasks.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white px-6 py-16 text-center shadow-sm sm:py-24"
           >
-            View My Tasks
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-fr">
-          {tasks.map((task) => (
-            <div
-              key={task._id}
-              className="bg-white border rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-200 flex flex-col justify-between h-full"
+            <div className="mb-4 text-5xl sm:text-6xl">📭</div>
+            <h2 className="text-lg font-bold text-slate-700 sm:text-xl">No proposals yet</h2>
+            <p className="mt-2 max-w-sm text-sm leading-6 text-slate-400">
+              Once freelancers start applying to your tasks, they will appear here.
+            </p>
+            <Link
+              href="/dashboard/client/tasks"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#678d58] to-[#74d3ae] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              {/* CONTENT WRAPPER */}
-              <div>
-                <h2 className="font-bold text-lg text-gray-800 line-clamp-2">
-                  {task.title}
-                </h2>
-
-            <div className="flex flex-wrap items-center gap-2 mt-3">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-700 border whitespace-nowrap">
-                    {getCategoryEmoji(task.category)} {task.category}
-                  </span>
-
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border whitespace-nowrap ${getStatusChip(
-                      task.status
-                    )}`}
-                  >
-                    {task.status === "open" && "🟢 Open"}
-                    {task.status === "in progress" && "🟡 In Progress"}
-                    {task.status === "awaiting_payment" && "🔵 Awaiting Payment"}
-                    {task.status === "completed" && "✅ Completed"}
-                  </span>
-                </div>
-                {/* BUDGET ROW WITH FLEX & GAP */}
-                <div className="flex items-center gap-3 mt-4">
-                  <span className="text-sm font-semibold text-gray-700">
-                    My Budget:
-                  </span>
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-100">
-                    💰 ${task.budget}
-                  </span>
-                </div>
-              </div>
-
-              {/* ACTIONS ARRENGED AT THE BOTTOM */}
-              <div className="mt-6 pt-4 border-t border-gray-50">
-                <Link
-                  href={`/dashboard/client/proposals/${task._id}`}
-                  className="w-full block text-center bg-linear-to-r from-[#678d58] to-[#74d3ae] text-white py-2.5 rounded-full font-medium hover:opacity-90 transition"
+              View My Tasks →
+            </Link>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }}
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6"
+          >
+            {tasks.map((task) => {
+              const status = getStatus(task.status);
+              return (
+                <motion.div
+                  key={task._id}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
+                  }}
+                  whileHover={{ y: -4 }}
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg"
                 >
-                  View Proposals
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                  {/* top accent */}
+                  <div className="h-1 w-full shrink-0 bg-gradient-to-r from-[#678d58] to-[#74d3ae]" />
+
+                  <div className="flex flex-1 flex-col p-5 sm:p-6">
+
+                    {/* Category + Status */}
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-slate-100 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600 sm:text-xs">
+                        {getCategoryEmoji(task.category)} {task.category}
+                      </span>
+                      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold sm:text-xs ${status.cls}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
+                        {status.label}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h2 className="line-clamp-2 text-base font-bold leading-snug text-slate-800 transition-colors group-hover:text-[#678d58] sm:text-lg">
+                      {task.title}
+                    </h2>
+
+                    {/* Budget */}
+                    <div className="mt-3 flex items-center gap-2">
+                      <span className="text-xs text-slate-400">Budget</span>
+                      <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+                        💰 ${task.budget}
+                      </span>
+                    </div>
+
+                    {/* Deadline */}
+                    {task.deadline && (
+                      <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-400">
+                        <span>📅</span>
+                        <span>
+                          {new Date(task.deadline).toLocaleDateString("en-US", {
+                            year: "numeric", month: "short", day: "numeric",
+                          })}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex-1" />
+                    <div className="my-4 h-px w-full bg-slate-100" />
+
+                    {/* CTA */}
+                    <Link
+                      href={`/dashboard/client/proposals/${task._id}`}
+                      className="block w-full rounded-xl bg-gradient-to-r from-[#678d58] to-[#74d3ae] py-2.5 text-center text-sm font-semibold text-white shadow-sm shadow-emerald-200 transition-all hover:brightness-105 hover:shadow-md"
+                    >
+                      View Proposals →
+                    </Link>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }
