@@ -145,6 +145,12 @@ const NavBar = () => {
                     </Link>
                   </Dropdown.Item>
 
+                  <Dropdown.Item key="settings">
+                    <Link href="/settings" className="block w-full font-semibold">
+                      Settings
+                    </Link>
+                  </Dropdown.Item>
+
                   <Dropdown.Item
                     key="logout"
                     onPress={handleLogOut}
