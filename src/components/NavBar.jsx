@@ -235,7 +235,7 @@ const NavBar = () => {
 
                       <button
                         onClick={() => { setDropdownOpen(false); handleLogOut(); }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 transition hover:bg-red-50"
+                        className="flex cursor-pointer w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 transition hover:bg-red-50"
                       >
                         <Icon icon="mdi:logout" className="text-base" />
                         Logout
@@ -332,7 +332,7 @@ const NavBar = () => {
                 ))}
                 <button
                   onClick={() => { setIsMenuOpen(false); handleLogOut(); }}
-                  className="mt-1 flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-red-500 transition hover:bg-red-50"
+                  className="mt-1 flex cursor-pointer w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-red-500 transition hover:bg-red-50"
                 >
                   <Icon icon="mdi:logout" className="text-base" />
                   Logout

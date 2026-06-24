@@ -1,60 +1,54 @@
 "use client";
 
-import {
-  Bell,
-  Envelope,
-  Gear,
-  House,
-  Person,
-  Briefcase,
-  Plus,
-  ListCheck,
-  File,
-  LayoutSideContent,
-} from "@gravity-ui/icons";
-
+import { Plus, ListCheck, File, LayoutSideContent, Briefcase, Person } from "@gravity-ui/icons";
 import { Avatar, Button, Drawer } from "@heroui/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { BiMoney, BiSearch } from "react-icons/bi";
 import { ChartArea, FileText, User, Wallet } from "lucide-react";
 
 export function DashboardSideBar() {
   const [open, setOpen] = useState(false);
- 
+  const pathname = usePathname();
 
   const { data: session } = authClient.useSession();
   const sessionUser = session?.user;
 
   const [profile, setProfile] = useState(null);
 
- useEffect(() => {
-  const handleUpdate = () => {
-    if (!sessionUser?.email) return;
+  useEffect(() => {
+    const handleUpdate = () => {
+      if (!sessionUser?.email) return;
 
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/profile/${sessionUser.email}`)
-      .then(res => res.json())
-      .then(data => setProfile(data))
-      .catch(() => console.log("Refresh failed"));
-  };
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/profile/${sessionUser.email}`)
+        .then((res) => res.json())
+        .then((data) => setProfile(data))
+        .catch(() => console.log("Refresh failed"));
+    };
 
-  window.addEventListener("profile-updated", handleUpdate);
+    window.addEventListener("profile-updated", handleUpdate);
+    handleUpdate(); // Initial fetch code freeze thakatkalin jate load hoy
 
-  return () => {
-    window.removeEventListener("profile-updated", handleUpdate);
-  };
-}, [sessionUser?.email]);
+    return () => {
+      window.removeEventListener("profile-updated", handleUpdate);
+    };
+  }, [sessionUser?.email]);
 
-  const role = sessionUser?.role || "client";
+  const [mounted, setMounted] = useState(false);
 
-  // FINAL USER OBJECT (single source of truth)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const role = mounted ? sessionUser?.role || "client" : "client";
+
   const displayUser = {
     name: profile?.name || sessionUser?.name || "User",
     image: profile?.image || sessionUser?.image || "",
   };
 
-  // ROLE BASED NAVIGATION
   const navItems = {
     client: [
       { icon: ChartArea, label: "Overview", href: "/dashboard/client" },
@@ -62,7 +56,6 @@ export function DashboardSideBar() {
       { icon: ListCheck, label: "My Tasks", href: "/dashboard/client/tasks" },
       { icon: File, label: "Manage Proposals", href: "/dashboard/client/proposals" },
     ],
-
     freelancer: [
       { icon: ChartArea, label: "Overview", href: "/dashboard/freelancer" },
       { icon: BiSearch, label: "Browse Tasks", href: "/dashboard/freelancer/browse-tasks" },
@@ -71,7 +64,6 @@ export function DashboardSideBar() {
       { icon: Wallet, label: "Earnings", href: "/dashboard/freelancer/earnings" },
       { icon: User, label: "Edit Profile", href: "/dashboard/freelancer/profile" },
     ],
-
     admin: [
       { icon: ChartArea, label: "Overview", href: "/dashboard/admin" },
       { icon: Person, label: "Users", href: "/dashboard/admin/users" },
@@ -80,18 +72,21 @@ export function DashboardSideBar() {
     ],
   };
 
-  const items = navItems[role];
+  const items = navItems[role] || [];
 
   return (
     <>
       {/* MOBILE DRAWER */}
-      <div className="lg:hidden mt-2">
+      <div className="lg:hidden p-4 fixed top-0 left-0 right-0 bg-white border-b z-50 flex items-center justify-between">
+        <h2 className="text-xl font-bold bg-linear-to-r from-[#678d58] to-[#74d3ae] bg-clip-text text-transparent">
+          SkillSwap
+        </h2>
         <Drawer open={open} onOpenChange={setOpen}>
           <Button
             onClick={() => setOpen(true)}
-            className="bg-linear-to-r from-[#678d58] to-[#74d3ae] text-white sticky fixed top-0 z-10"
+            className="bg-linear-to-r from-[#678d58] to-[#74d3ae] text-white size-10 min-w-10 p-0"
           >
-            <LayoutSideContent />
+            <LayoutSideContent className="size-5" />
           </Button>
 
           <Drawer.Backdrop>
@@ -102,9 +97,8 @@ export function DashboardSideBar() {
                 <Drawer.Header className="border-b pb-4">
                   <div>
                     <h2 className="text-xl font-bold bg-linear-to-r from-[#678d58] to-[#74d3ae] bg-clip-text text-transparent">
-                      AlignTask
+                      SkillSwap
                     </h2>
-
                     <p className="text-sm text-gray-500">
                       {role === "admin"
                         ? "Admin Panel"
@@ -117,20 +111,29 @@ export function DashboardSideBar() {
 
                 <Drawer.Body>
                   <nav className="flex flex-col gap-2">
-                    {items.map((item) => (
-                      <Link
-                        key={item.label}
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm hover:bg-gray-100 transition"
-                      >
-                        <item.icon className="size-5 text-gray-500" />
-                        {item.label}
-                      </Link>
-                    ))}
+                    {items.map((item) => {
+                      const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+
+                      return (
+                        <Link
+                          key={item.label}
+                          href={item.href}
+                          onClick={() => setOpen(false)}
+                          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+                            isActive
+                              ? "bg-linear-to-r from-[#678d58] to-[#74d3ae] text-white"
+                              : "hover:bg-gray-100"
+                          }`}
+                        >
+                          <item.icon
+                            className={`size-5 ${isActive ? "text-white" : "text-gray-500"}`}
+                          />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
                   </nav>
 
-                  {/* USER FOOTER */}
                   <div className="mt-6 border-t pt-4">
                     <div className="flex items-center gap-3">
                       <Avatar>
@@ -139,18 +142,12 @@ export function DashboardSideBar() {
                           src={displayUser.image}
                           className="object-cover"
                         />
-                        <Avatar.Fallback>
-                          {displayUser.name?.[0]}
-                        </Avatar.Fallback>
+                        <Avatar.Fallback>{displayUser.name?.[0]}</Avatar.Fallback>
                       </Avatar>
 
                       <div>
-                        <p className="font-medium text-black text-sm">
-                          {displayUser.name}
-                        </p>
-                        <p className="text-xs text-gray-500 capitalize">
-                          {role}
-                        </p>
+                        <p className="font-medium text-black text-sm">{displayUser.name}</p>
+                        <p className="text-xs text-gray-500 capitalize">{role}</p>
                       </div>
                     </div>
                   </div>
@@ -161,57 +158,52 @@ export function DashboardSideBar() {
         </Drawer>
       </div>
 
-      {/* ================= DESKTOP SIDEBAR ================= */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 self-stretch border-r bg-white px-4 py-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-800">
-            {role === "admin"
-              ? "Admin Panel"
-              : role === "freelancer"
-              ? "Freelancer Hub"
-              : "Client Space"}
-          </h2>
+      {/* DESKTOP SIDEBAR */}
+      <aside className="hidden lg:flex lg:flex-col lg:w-64 h-screen sticky top-0 border-r bg-white px-4 py-6 justify-between">
+        <div>
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-gray-800">
+              {role === "admin"
+                ? "Admin Panel"
+                : role === "freelancer"
+                ? "Freelancer Hub"
+                : "Client Space"}
+            </h2>
+            <p className="text-xs text-gray-500 mt-1">Manage your dashboard</p>
+          </div>
 
-          <p className="text-xs text-gray-500 mt-1">
-            Manage your dashboard
-          </p>
+          <nav className="flex flex-col gap-1">
+            {items.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
+                    isActive
+                      ? "bg-linear-to-r from-[#678d58] to-[#74d3ae] text-white"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  <item.icon className={`size-5 ${isActive ? "text-white" : "text-gray-500"}`} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Nav */}
-        <nav className="flex flex-col gap-1">
-          {items.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition"
-            >
-              <item.icon className="size-5 text-gray-500" />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Footer */}
-        <div className="mt-6 border-t pt-4">
+        <div className="border-t pt-4">
           <div className="flex items-center gap-3">
             <Avatar>
-              <Avatar.Image
-                alt={displayUser.name}
-                src={displayUser.image}
-              />
-              <Avatar.Fallback>
-                {displayUser.name?.[0]}
-              </Avatar.Fallback>
+              <Avatar.Image alt={displayUser.name} src={displayUser.image} />
+              <Avatar.Fallback>{displayUser.name?.[0]}</Avatar.Fallback>
             </Avatar>
 
             <div>
-              <p className="font-medium text-sm">
-                {displayUser.name}
-              </p>
-              <p className="text-xs text-gray-500 capitalize">
-                {role}
-              </p>
+              <p className="font-medium text-sm">{displayUser.name}</p>
+              <p className="text-xs text-gray-500 capitalize">{role}</p>
             </div>
           </div>
         </div>
