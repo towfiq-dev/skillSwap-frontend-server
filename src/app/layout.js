@@ -4,6 +4,7 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { ToastContainer } from "react-toastify";
 import BlockedUserGuard from "@/components/BlockedUserGuard";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
         </main>
         <Footer/>
         <ToastContainer />
+        <Toaster position="top-center" reverseOrder={false} />
       </body>
     </html>
   );
